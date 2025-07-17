@@ -83,9 +83,41 @@ def root():
     return RedirectResponse(url="/static/index.html")
 
 
+from typing import Optional
+
 @app.get("/activities")
-def get_activities():
-    return activities
+def get_activities(
+    category: Optional[str] = None,
+    sort: Optional[str] = None,
+    search: Optional[str] = None
+):
+    # Convert activities dict to list of dicts with name
+    activity_list = [
+        {"name": name, **info}
+        for name, info in activities.items()
+    ]
+
+    # Filter by category (if category field exists in future)
+    if category:
+        activity_list = [a for a in activity_list if a.get("category") == category]
+
+    # Free text search (name, description, schedule)
+    if search:
+        search_lower = search.lower()
+        activity_list = [
+            a for a in activity_list
+            if search_lower in a["name"].lower()
+            or search_lower in a["description"].lower()
+            or search_lower in a["schedule"].lower()
+        ]
+
+    # Sorting
+    if sort == "name":
+        activity_list.sort(key=lambda a: a["name"].lower())
+    elif sort == "time":
+        activity_list.sort(key=lambda a: a["schedule"].lower())
+
+    return activity_list
 
 
 @app.post("/activities/{activity_name}/signup")
