@@ -83,7 +83,6 @@ def root():
     return RedirectResponse(url="/static/index.html")
 
 
-@app.get("/activities")
 from typing import Optional
 
 @app.get("/activities")
